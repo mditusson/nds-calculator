@@ -1,4 +1,3 @@
-text
 streamlit
 num2words
 pandas
