@@ -5,19 +5,16 @@ from num2words import num2words
 # Настройка страницы
 st.set_page_config(page_title="Калькулятор НДС", layout="wide")
 
-# Ультимативные стили для копирования: белый фон, черные границы
+# Стили для имитации "белого листа" и четких границ
 st.markdown("""
     <style>
-    /* Контейнер-подложка, чтобы текст был виден в темной теме Streamlit */
     .paper-container {
         background-color: white !important;
         padding: 20px;
-        border-radius: 5px;
         color: black !important;
-        width: 175mm; /* Чуть шире таблицы для отступов */
+        width: 175mm;
     }
     
-    /* Таблица с принудительными границами */
     .word-table {
         font-family: "Times New Roman", Times, serif !important;
         font-size: 11pt !important;
@@ -26,18 +23,16 @@ st.markdown("""
         table-layout: fixed !important;
         color: black !important;
         background-color: white !important;
-        border: 1px solid black !important;
     }
     
     .word-table th, .word-table td {
-        border: 1pt solid black !important; /* Явное указание границы для Word */
+        border: 1pt solid black !important;
         padding: 5px !important;
         text-align: left !important;
         word-wrap: break-word !important;
         color: black !important;
     }
 
-    /* Текст под таблицей */
     .word-text {
         font-family: "Times New Roman", Times, serif !important;
         font-size: 11pt !important;
@@ -65,7 +60,6 @@ if submitted:
     nds_sum = total_no_nds * (nds_rate / 100)
     total_with_nds = total_no_nds + nds_sum
 
-    # Функция суммы прописью
     def to_words(amount):
         rub = int(amount)
         kop = int(round((amount - rub) * 100))
@@ -75,12 +69,11 @@ if submitted:
     total_words = to_words(total_with_nds)
     nds_words = to_words(nds_sum)
 
-    # Формируем HTML: всё внутри одного "белого" блока для легкого копирования
+    # Формируем HTML
     columns = ["№ п.п", "Наименование", "Кол-во", "Цена ед. без НДС", "Стоим. без НДС", "НДС %", "Сумма НДС", "Всего с НДС"]
     values = ["1", name, str(quantity), f"{price_no_nds:.2f}", f"{total_no_nds:.2f}", f"{nds_rate}%", f"{nds_sum:.2f}", f"{total_with_nds:.2f}"]
     widths = ["7%", "28%", "10%", "12%", "13%", "8%", "10%", "12%"]
 
-    # Начало контейнера
     full_html = '<div class="paper-container">'
     
     # Таблица
@@ -92,15 +85,15 @@ if submitted:
         full_html += f'<td style="border: 1pt solid black;">{val}</td>'
     full_html += '</tr></tbody></table>'
     
-    # Текст сразу следующей строкой
+    # Текст без жирного выделения (убраны теги <b>)
     full_html += f"""
     <div class="word-text">
-    Общая стоимость оборудования составляет <b>{total_words}</b>, 
-    включая НДС (20%) в сумме <b>{nds_words}</b>.
+    Общая стоимость оборудования составляет {total_words}, 
+    включая НДС (20%) в сумме {nds_words}.
     </div>
     """
     
-    full_html += '</div>' # Конец контейнера
+    full_html += '</div>'
 
     st.markdown(full_html, unsafe_allow_html=True)
-    st.info("Теперь выделите белый блок целиком и вставьте в Word. Границы и цвета сохранятся.")
+    st.info("Результат готов. Выделите область выше и вставьте в Word.")
