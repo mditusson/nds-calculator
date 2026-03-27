@@ -50,7 +50,9 @@ if st.button("Очистить всё"):
     st.rerun()
 
 # 2. Расчет и отображение результатов (если в списке есть товары)
-if st.session_state.items:
+# Замени весь блок «2. Расчет и отображение результатов» на этот:
+
+if 'items' in st.session_state and isinstance(st.session_state.items, list) and len(st.session_state.items) > 0:
     total_sum_no_nds = 0
     total_nds_sum = 0
     total_sum_with_nds = 0
@@ -64,37 +66,31 @@ if st.session_state.items:
         full_html += f'<th style="width: {width}; border: 1pt solid black;">{col}</th>'
     full_html += '</tr></thead><tbody>'
     
-    # Проход по всем товарам в списке
+    # БЕЗОПАСНЫЙ ЦИКЛ
     for i, item in enumerate(st.session_state.items, 1):
+        # Проверяем, что item - это словарь (защита от ошибок сессии)
+        if not isinstance(item, dict):
+            continue
+            
         nds_rate = 20
-        sum_no_nds = item['qty'] * item['price']
+        sum_no_nds = item.get('qty', 0) * item.get('price', 0.0)
         nds_val = sum_no_nds * (nds_rate / 100)
         sum_with_nds = sum_no_nds + nds_val
         
-        # Накопление итогов
         total_sum_no_nds += sum_no_nds
         total_nds_sum += nds_val
         total_sum_with_nds += sum_with_nds
         
-        # Добавляем строку в HTML
-        row_vals = [i, item['name'], item['qty'], f"{item['price']:.2f}", f"{sum_no_nds:.2f}", f"{nds_rate}%", f"{nds_val:.2f}", f"{sum_with_nds:.2f}"]
+        row_vals = [i, item.get('name', ''), item.get('qty', 0), 
+                    f"{item.get('price', 0.0):.2f}", f"{sum_no_nds:.2f}", 
+                    f"{nds_rate}%", f"{nds_val:.2f}", f"{sum_with_nds:.2f}"]
+        
         full_html += '<tr>'
         for val in row_vals:
             full_html += f'<td style="border: 1pt solid black;">{val}</td>'
         full_html += '</tr>'
-    
-    # Добавляем строку ИТОГО
-    full_html += f"""
-        <tr>
-            <td colspan="4" style="border: 1pt solid black; text-align: right;"><b>ИТОГО:</b></td>
-            <td style="border: 1pt solid black;"><b>{total_sum_no_nds:.2f}</b></td>
-            <td style="border: 1pt solid black;">-</td>
-            <td style="border: 1pt solid black;"><b>{total_nds_sum:.2f}</b></td>
-            <td style="border: 1pt solid black;"><b>{total_sum_with_nds:.2f}</b></td>
-        </tr>
-    """
-    
-    full_html += '</tbody></table>'
+
+    # ... далее идет код строки ИТОГО и суммы прописью (оставь его как был)
     
     # 3. Сумма прописью для общего итога
     def to_words(amount):
